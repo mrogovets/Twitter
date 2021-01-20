@@ -1,9 +1,29 @@
+class FetchData {
+  getResourse = async (url) => {
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      throw new Error("Error takes place: " + res.status);
+    }
+
+    return res.json();
+  };
+  getPost = async () => await this.getResourse("db/database.json");
+}
+
 class Twitter {
   constructor({ listElem }) {
+    const fetchData = new FetchData();
     this.tweets = new Posts();
     this.elements = {
       listElem: document.querySelector(listElem),
     };
+    fetchData.getPost().then((data) => {
+      data.forEach((item) => {
+        this.tweets.addPost(item);
+      });
+    });
+    console.log(this.tweets);
   }
   renderPosts() {}
   showUserPosts() {}
@@ -16,23 +36,22 @@ class Posts {
   constructor({ posts = [] } = {}) {
     this.posts = posts;
   }
-  addPost(tweet) {
-    const post = new Posts(tweet);
-    this.tweets.push(post);
+  addPost(tweets) {
+    this.posts.push(tweets);
   }
   deletePost(id) {}
   likePost(id) {}
 }
 
 class Post {
-  constructor(param) {
-    this.id = param.id;
-    this.userName = param.userName;
-    this.nickname = param.nickname;
-    this.postDate = param.postDate;
-    this.text = param.text;
-    this.img = param.img;
-    this.likes = param.likes;
+  constructor({ id, userName, nickname, postDate, text, img, likes = 0 }) {
+    this.id = id ? id : this.generateID();
+    this.userName = userName;
+    this.nickname = nickname;
+    this.postDate = postDate ? new Date(postDate) : new Date();
+    this.text = text;
+    this.img = img;
+    this.likes = likes;
     this.liked = false;
   }
   changeLike() {
@@ -43,10 +62,24 @@ class Post {
       this.liked--;
     }
   }
+
+  generateID() {
+    return (
+      Math.random().toString(32).substring(2, 9) + (+new Date()).toString(32)
+    );
+  }
+  getDate() {
+    const options = {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+    return this.postDate.toLocaleString("uk-Uk", options);
+  }
 }
 
 const twitter = new Twitter({
   listElem: ".tweet-list",
 });
-
-console.log(twitter);
