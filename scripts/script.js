@@ -92,7 +92,7 @@ class Twitter {
                 <footer>
                   <button class="tweet__like ${
                     liked ? this.classLikeTweet.active : ""
-                  }">${likes}</button>
+                  }" data-id='${id}'>${likes}</button>
                 </footer>
               </article>
             </li>
@@ -184,7 +184,13 @@ class Posts {
   deletePost(id) {
     this.posts = this.posts.filter((item) => item.id !== id);
   }
-  likePost(id) {}
+  likePost(id) {
+    this.posts.forEach((item) => {
+      if (item.id === id) {
+        item.changeLike();
+      }
+    });
+  }
 }
 
 class Post {
