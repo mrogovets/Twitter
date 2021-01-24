@@ -46,10 +46,11 @@ class Twitter {
   }
   renderPosts(posts) {
     this.elements.listElem.textContent = "";
-    posts.forEach(({ id, userName, nickname, text, img, likes, getDate }) => {
-      this.elements.listElem.insertAdjacentHTML(
-        "beforeend",
-        `
+    posts.forEach(
+      ({ id, userName, nickname, text, img, likes, liked, getDate }) => {
+        this.elements.listElem.insertAdjacentHTML(
+          "beforeend",
+          `
         <li>
               <article class="tweet">
                 <div class="row">
@@ -89,13 +90,16 @@ class Twitter {
                   </div>
                 </div>
                 <footer>
-                  <button class="tweet__like">${likes}</button>
+                  <button class="tweet__like ${
+                    liked ? this.classLikeTweet.active : ""
+                  }">${likes}</button>
                 </footer>
               </article>
             </li>
         `
-      );
-    });
+        );
+      }
+    );
   }
   showUserPosts() {}
   showLikesPosts() {}
@@ -161,7 +165,11 @@ class Twitter {
   handlerTweet = (event) => {
     const target = event.target;
     if (target.classList.contains(this.class.classDeleteTweet)) {
-      console.log("Delete Button");
+      this.tweets.deletePost(target.dataset.id);
+      this.showAllPost();
+    }
+    if (target.classList.contains(this.class.classLikeTweet.like)) {
+      this.tweets.likePost(target.dataset.id);
     }
   };
 }
@@ -173,7 +181,9 @@ class Posts {
   addPost = (tweets) => {
     this.posts.unshift(new Post(tweets));
   };
-  deletePost(id) {}
+  deletePost(id) {
+    this.posts = this.posts.filter((item) => item.id !== id);
+  }
   likePost(id) {}
 }
 
