@@ -12,7 +12,14 @@ class FetchData {
 }
 
 class Twitter {
-  constructor({ user, listElem, modalElems, tweetElems }) {
+  constructor({
+    user,
+    listElem,
+    modalElems,
+    tweetElems,
+    classDeleteTweet,
+    classLikeTweet,
+  }) {
     const fetchData = new FetchData();
     this.user = user;
     this.tweets = new Posts();
@@ -21,6 +28,11 @@ class Twitter {
       modal: modalElems,
       tweetElems,
     };
+    this.class = {
+      classDeleteTweet,
+      classLikeTweet,
+    };
+
     fetchData.getPost().then((data) => {
       data.forEach((item) => {
         this.tweets.addPost(item);
@@ -29,6 +41,8 @@ class Twitter {
     });
     this.elements.modal.forEach(this.handlerModal, this);
     this.elements.tweetElems.forEach(this.addTweet, this);
+
+    this.elements.listElem.addEventListener("click", this.handlerTweet);
   }
   renderPosts(posts) {
     this.elements.listElem.textContent = "";
@@ -144,6 +158,12 @@ class Twitter {
       imgUrl = prompt("Enter URL image"); // виклик модального браузерного вікна
     });
   }
+  handlerTweet = (event) => {
+    const target = event.target;
+    if (target.classList.contains(this.class.classDeleteTweet)) {
+      console.log("Delete Button");
+    }
+  };
 }
 
 class Posts {
@@ -162,7 +182,7 @@ class Post {
     this.id = id ? id : this.generateID();
     this.userName = userName;
     this.nickname = nickname;
-    this.postDate = postDate ? new Date(postDate) : new Date();
+    this.postDate = postDate ? this.correctDate(postDate) : new Date();
     this.text = text;
     this.img = img;
     this.likes = likes;
@@ -192,6 +212,13 @@ class Post {
     };
     return this.postDate.toLocaleString("uk-UK", options);
   };
+
+  correctDate = (date) => {
+    if (isNaN(Date.parse(date))) {
+      date = date.replace(/\./g, "/");
+    }
+    return new Date(date);
+  };
 }
 
 const twitter = new Twitter({
@@ -214,5 +241,15 @@ const twitter = new Twitter({
       img: ".modal .tweet-img__btn",
       submit: ".modal .tweet-form__btn",
     },
+    {
+      text: ".tweet-form__text",
+      img: ".tweet-img__btn",
+      submit: ".tweet-form__btn",
+    },
   ],
+  classDeleteTweet: "tweet__delete-button",
+  classLikeTweet: {
+    like: "tweet__like",
+    active: "tweet__like_active",
+  },
 });
