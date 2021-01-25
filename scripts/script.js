@@ -19,12 +19,14 @@ class Twitter {
     tweetElems,
     classDeleteTweet,
     classLikeTweet,
+    sortElem,
   }) {
     const fetchData = new FetchData();
     this.user = user;
     this.tweets = new Posts();
     this.elements = {
       listElem: document.querySelector(listElem),
+      sortElem: document.querySelector(sortElem),
       modal: modalElems,
       tweetElems,
     };
@@ -32,6 +34,7 @@ class Twitter {
       classDeleteTweet,
       classLikeTweet,
     };
+    this.sortDate = true;
 
     fetchData.getPost().then((data) => {
       data.forEach((item) => {
@@ -43,10 +46,12 @@ class Twitter {
     this.elements.tweetElems.forEach(this.addTweet, this);
 
     this.elements.listElem.addEventListener("click", this.handlerTweet);
+    this.elements.sortElem.addEventListener("click", this.changeSort);
   }
   renderPosts(posts) {
+    const sortPost = posts.sort(this.sortFields());
     this.elements.listElem.textContent = "";
-    posts.forEach(
+    sortPost.forEach(
       ({ id, userName, nickname, text, img, likes, liked, getDate }) => {
         this.elements.listElem.insertAdjacentHTML(
           "beforeend",
@@ -91,7 +96,7 @@ class Twitter {
                 </div>
                 <footer>
                   <button class="tweet__like ${
-                    liked ? this.classLikeTweet.active : ""
+                    liked ? this.class.classLikeTweet.active : ""
                   }" data-id='${id}'>${likes}</button>
                 </footer>
               </article>
@@ -170,6 +175,24 @@ class Twitter {
     }
     if (target.classList.contains(this.class.classLikeTweet.like)) {
       this.tweets.likePost(target.dataset.id);
+      this.showAllPost();
+    }
+  };
+  changeSort = () => {
+    this.sortDate = !this.sortDate;
+    this.showAllPost();
+  };
+  sortFields = () => {
+    if (this.sortDate) {
+      return (a, b) => {
+        const dateA = new Date(a.postDate);
+        const dateB = new Date(b.postDate);
+        return dateB - dateA;
+      };
+    } else {
+      return (a, b) => {
+        b.likes - a.likes;
+      };
     }
   };
 }
@@ -205,11 +228,11 @@ class Post {
     this.liked = false;
   }
   changeLike() {
-    this.like = !this.liked;
-    if (this.liked === true) {
-      this.liked++;
+    this.liked = !this.liked;
+    if (this.liked) {
+      this.likes++;
     } else {
-      this.liked--;
+      this.likes--;
     }
   }
 
@@ -268,4 +291,5 @@ const twitter = new Twitter({
     like: "tweet__like",
     active: "tweet__like_active",
   },
+  sortElem: ".header__link_sort",
 });
