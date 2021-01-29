@@ -20,6 +20,8 @@ class Twitter {
     classDeleteTweet,
     classLikeTweet,
     sortElem,
+    showUserPostElement,
+    showLikedPostElem,
   }) {
     const fetchData = new FetchData();
     this.user = user;
@@ -29,6 +31,8 @@ class Twitter {
       sortElem: document.querySelector(sortElem),
       modal: modalElems,
       tweetElems,
+      showUserPostElement: document.querySelector(showUserPostElement),
+      showLikedPostElem: document.querySelector(showLikedPostElem),
     };
     this.class = {
       classDeleteTweet,
@@ -47,6 +51,15 @@ class Twitter {
 
     this.elements.listElem.addEventListener("click", this.handlerTweet);
     this.elements.sortElem.addEventListener("click", this.changeSort);
+
+    this.elements.showUserPostElement.addEventListener(
+      "click",
+      this.showUserPosts
+    );
+    this.elements.showLikedPostElem.addEventListener(
+      "click",
+      this.showLikedPosts
+    );
   }
   renderPosts(posts) {
     const sortPost = posts.sort(this.sortFields());
@@ -106,8 +119,16 @@ class Twitter {
       }
     );
   }
-  showUserPosts() {}
-  showLikesPosts() {}
+  showUserPosts = () => {
+    const post = this.tweets.posts.filter(
+      (item) => item.nickname === this.user.nick
+    );
+    this.renderPosts(post);
+  };
+  showLikedPosts = () => {
+    const post = this.tweets.posts.filter((item) => item.liked);
+    this.renderPosts(post);
+  };
   showAllPost() {
     this.renderPosts(this.tweets.posts);
   }
@@ -191,7 +212,7 @@ class Twitter {
       };
     } else {
       return (a, b) => {
-        b.likes - a.likes;
+        return b.likes - a.likes;
       };
     }
   };
@@ -202,7 +223,7 @@ class Posts {
     this.posts = posts;
   }
   addPost = (tweets) => {
-    this.posts.unshift(new Post(tweets));
+    this.posts.push(new Post(tweets)); //unshift
   };
   deletePost(id) {
     this.posts = this.posts.filter((item) => item.id !== id);
@@ -292,4 +313,6 @@ const twitter = new Twitter({
     active: "tweet__like_active",
   },
   sortElem: ".header__link_sort",
+  showUserPostElement: ".header__link_profile",
+  showLikedPostElem: ".header__link_likes",
 });
